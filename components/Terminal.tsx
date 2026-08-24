@@ -155,8 +155,10 @@ export default function Terminal() {
   const bodyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (open) inputRef.current?.focus();
-  }, [open]);
+  if (!busy && open) {
+      inputRef.current?.focus();
+    }
+  }, [busy, open]);
 
   useEffect(() => {
     bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight, behavior: "smooth" });
