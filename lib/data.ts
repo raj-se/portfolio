@@ -6,7 +6,7 @@ export const profile = {
   email: "sakariyaraj890@gmail.com",
   phone: "+91 9167515953",
   linkedin: "https://www.linkedin.com/in/raj-sakariya-231031213",
-  github: "https://github.com/raj9167",
+  github: "https://github.com/raj-se",
   summary:
     "I design and ship backend systems for SaaS products — Node.js, TypeScript, Fastify, PostgreSQL and MongoDB on AWS. Over the last 3 years I've worked mostly at the boundary where services talk to each other: event buses, integrations, permissions, and the schema decisions that make an API fast or slow.",
 };
