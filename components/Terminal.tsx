@@ -155,10 +155,18 @@ export default function Terminal() {
   const bodyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-  if (!busy && open) {
+    if (!busy && open) {
       inputRef.current?.focus();
     }
   }, [busy, open]);
+
+  useEffect(() => {
+    function onExternalOpen() {
+      setOpen(true);
+    }
+    window.addEventListener("open-terminal", onExternalOpen);
+    return () => window.removeEventListener("open-terminal", onExternalOpen);
+  }, []);
 
   useEffect(() => {
     bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight, behavior: "smooth" });
