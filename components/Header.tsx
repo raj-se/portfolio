@@ -66,9 +66,18 @@ export default function Header() {
           ))}
         </nav>
 
-        <a href="#contact" className="hidden md:inline-flex btn-ghost text-xs !py-2 !px-3">
-          {profile.email}
-        </a>
+        <div className="hidden md:flex items-center gap-3">
+          <a href="#contact" className="btn-ghost text-xs !py-2 !px-3">
+            {profile.email}
+          </a>
+          <button
+            onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
+            className="btn-ghost text-xs !py-2 !px-3"
+            aria-label="Open command palette"
+          >
+            <kbd className="cmdk-kbd">⌘K</kbd>
+          </button>
+        </div>
 
         <button
           aria-label="Toggle menu"
