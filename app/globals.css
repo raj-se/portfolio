@@ -982,3 +982,123 @@ html.custom-cursor-active textarea {
     filter: none !important;
   }
 }
+
+/* ---------- Terminal widget ---------- */
+.terminal-fab {
+  box-shadow: 0 0 0 0 rgba(79, 209, 197, 0.4);
+  animation: terminal-fab-pulse 2.6s ease-out infinite;
+}
+@keyframes terminal-fab-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(79, 209, 197, 0.35); }
+  70% { box-shadow: 0 0 0 10px rgba(79, 209, 197, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(79, 209, 197, 0); }
+}
+
+.terminal-window {
+  animation: terminal-rise 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes terminal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.terminal-panel {
+  box-shadow: 0 0 0 1px rgba(79, 209, 197, 0.12), 0 30px 60px -20px rgba(0, 0, 0, 0.6);
+}
+
+.terminal-body {
+  scrollbar-width: thin;
+}
+
+.terminal-line {
+  animation: terminal-line-in 220ms ease both;
+}
+@keyframes terminal-line-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.terminal-caret {
+  width: 6px;
+  height: 13px;
+  background: var(--signal);
+  animation: blink-caret 1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .terminal-fab { animation: none; }
+  .terminal-window { animation: none; }
+  .terminal-line { animation: none; }
+}
+
+/* ---------- Terminal widget: colorful upgrade ---------- */
+.terminal-fab {
+  background: linear-gradient(135deg, #4fd1c5, #f0a868);
+  box-shadow: 0 0 0 0 rgba(79, 209, 197, 0.4), 0 8px 24px -8px rgba(79, 209, 197, 0.5);
+  animation: terminal-fab-pulse 2.6s ease-out infinite;
+  transition: transform 200ms ease;
+}
+.terminal-fab:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+@keyframes terminal-fab-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(79, 209, 197, 0.35), 0 8px 24px -8px rgba(79, 209, 197, 0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(79, 209, 197, 0), 0 8px 24px -8px rgba(79, 209, 197, 0.5); }
+  100% { box-shadow: 0 0 0 0 rgba(79, 209, 197, 0), 0 8px 24px -8px rgba(79, 209, 197, 0.5); }
+}
+
+.terminal-window {
+  animation: terminal-rise 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes terminal-rise {
+  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.terminal-panel {
+  box-shadow: 0 0 0 1px rgba(79, 209, 197, 0.15), 0 30px 60px -20px rgba(0, 0, 0, 0.65);
+}
+
+.terminal-body {
+  scrollbar-width: thin;
+  background: radial-gradient(ellipse 120% 60% at 0% 0%, rgba(79, 209, 197, 0.05), transparent);
+}
+
+.terminal-line {
+  animation: terminal-line-in 220ms ease both;
+}
+@keyframes terminal-line-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.term-chip {
+  border: 1px solid;
+  border-radius: 999px;
+  padding: 0.22rem 0.6rem;
+  white-space: nowrap;
+  transition: transform 160ms ease, filter 160ms ease;
+}
+.term-chip:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.2);
+}
+
+.terminal-caret {
+  width: 6px;
+  height: 13px;
+  background: #4fd1c5;
+  animation: blink-caret 1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .terminal-fab { animation: none; }
+  .terminal-window { animation: none; }
+  .terminal-line { animation: none; }
+}
