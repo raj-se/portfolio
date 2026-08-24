@@ -13,6 +13,7 @@ import Marquee from "@/components/Marquee";
 import BackToTop from "@/components/BackToTop";
 import Terminal from "@/components/Terminal";
 import CommandPalette from "@/components/CommandPalette";
+import ShortcutHint from "@/components/ShortcutHint";
 
 export default function Home() {
   return (
@@ -23,6 +24,7 @@ export default function Home() {
       <BackToTop />
       <Terminal />
       <CommandPalette />
+      <ShortcutHint />
       <Header />
       <Hero />
       <Marquee />
