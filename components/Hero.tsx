@@ -13,7 +13,7 @@ import { useScramble } from "@/lib/useScramble";
 export default function Hero() {
   const scrambledName = useScramble(profile.name, 200);
   return (
-    <section id="top" className="relative pt-36 pb-20 md:pt-44 md:pb-28 overflow-hidden">
+    <section id="top" className="relative pt-24 pb-20 md:pt-28 md:pb-28 overflow-hidden">
       <div className="max-w-content mx-auto px-6 md:px-8 grid md:grid-cols-[1fr_1.25fr] gap-14 items-center">
         <Reveal>
         <p className="eyebrow mb-5">
