@@ -1,81 +1,106 @@
 "use client";
 
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
-import { TerminalSquare, X, Minus } from "lucide-react";
+import { TerminalSquare, X } from "lucide-react";
 import { profile, skillGroups, experience, projects, education } from "@/lib/data";
 
-type Line = { type: "input" | "output" | "error"; text: string };
+type LineKind = "input" | "text" | "error" | "heading" | "success" | "kv" | "chips";
+
+type Line = {
+  kind: LineKind;
+  text?: string;
+  label?: string;
+  value?: string;
+  items?: string[];
+  color?: string;
+};
+
+const PALETTE = ["#4FD1C5", "#F0A868", "#A78BFA", "#F472B6", "#60A5FA", "#34D399"];
 
 const WELCOME: Line[] = [
-  { type: "output", text: `${profile.name.toLowerCase().replace(" ", "-")}@portfolio:~$ welcome.` },
-  { type: "output", text: "Type 'help' to see available commands." },
+  { kind: "heading", text: `${profile.name.toLowerCase().replace(" ", "-")}@portfolio`, color: PALETTE[0] },
+  { kind: "text", text: "Type 'help' to see available commands." },
 ];
 
 function getResponse(raw: string): Line[] {
   const cmd = raw.trim().toLowerCase();
-
-  if (cmd === "" ) return [];
+  if (cmd === "") return [];
 
   if (cmd === "help") {
+    const commands: [string, string][] = [
+      ["whoami", "who I am"],
+      ["about", "a short summary"],
+      ["skills", "the tech stack"],
+      ["experience", "where I've worked"],
+      ["projects", "what I've built"],
+      ["education", "where I studied"],
+      ["contact", "how to reach me"],
+      ["resume", "download my resume"],
+      ["clear", "clear the terminal"],
+      ["exit", "close this window"],
+    ];
     return [
-      { type: "output", text: "Available commands:" },
-      { type: "output", text: "  whoami       — who I am" },
-      { type: "output", text: "  about        — a short summary" },
-      { type: "output", text: "  skills       — the tech stack" },
-      { type: "output", text: "  experience   — where I've worked" },
-      { type: "output", text: "  projects     — what I've built" },
-      { type: "output", text: "  education    — where I studied" },
-      { type: "output", text: "  contact      — how to reach me" },
-      { type: "output", text: "  resume       — download my resume" },
-      { type: "output", text: "  clear        — clear the terminal" },
-      { type: "output", text: "  exit         — close this window" },
+      { kind: "heading", text: "Available commands", color: PALETTE[0] },
+      ...commands.map(([name, desc], i) => ({
+        kind: "kv" as const,
+        label: name,
+        value: desc,
+        color: PALETTE[i % PALETTE.length],
+      })),
     ];
   }
 
   if (cmd === "whoami") {
     return [
-      { type: "output", text: `${profile.name} — ${profile.role}` },
-      { type: "output", text: `based in ${profile.location}` },
+      { kind: "heading", text: `${profile.name} — ${profile.role}`, color: PALETTE[0] },
+      { kind: "kv", label: "location", value: profile.location, color: PALETTE[2] },
     ];
   }
 
   if (cmd === "about") {
-    return [{ type: "output", text: profile.summary }];
+    return [
+      { kind: "heading", text: "About", color: PALETTE[1] },
+      { kind: "text", text: profile.summary },
+    ];
   }
 
   if (cmd === "skills") {
-    return skillGroups.flatMap((g) => [
-      { type: "output" as const, text: `${g.title}:` },
-      { type: "output" as const, text: `  ${g.items.join(", ")}` },
+    return skillGroups.flatMap((g, i) => [
+      { kind: "heading" as const, text: g.title, color: PALETTE[i % PALETTE.length] },
+      { kind: "chips" as const, items: g.items, color: PALETTE[i % PALETTE.length] },
     ]);
   }
 
   if (cmd === "experience") {
-    return experience.flatMap((job) => [
-      { type: "output" as const, text: `${job.company} — ${job.role} (${job.period})` },
-      { type: "output" as const, text: `  ${job.summary}` },
+    return experience.flatMap((job, i) => [
+      { kind: "heading" as const, text: job.company, color: PALETTE[i % PALETTE.length] },
+      { kind: "kv" as const, label: "role", value: job.role, color: PALETTE[2] },
+      { kind: "kv" as const, label: "period", value: job.period, color: PALETTE[2] },
+      { kind: "text" as const, text: job.summary },
     ]);
   }
 
   if (cmd === "projects") {
-    return projects.flatMap((p) => [
-      { type: "output" as const, text: `${p.name} — ${p.tag}` },
+    return projects.flatMap((p, i) => [
+      { kind: "heading" as const, text: p.name, color: PALETTE[i % PALETTE.length] },
+      { kind: "kv" as const, label: "tag", value: p.tag, color: PALETTE[2] },
     ]);
   }
 
   if (cmd === "education") {
     return [
-      { type: "output", text: education.degree },
-      { type: "output", text: education.school },
+      { kind: "heading", text: education.degree, color: PALETTE[3] },
+      { kind: "kv", label: "school", value: education.school, color: PALETTE[2] },
     ];
   }
 
   if (cmd === "contact") {
     return [
-      { type: "output", text: `email: ${profile.email}` },
-      { type: "output", text: `phone: ${profile.phone}` },
-      { type: "output", text: `linkedin: ${profile.linkedin}` },
-      { type: "output", text: `github: ${profile.github}` },
+      { kind: "heading", text: "Contact", color: PALETTE[4] },
+      { kind: "kv", label: "email", value: profile.email, color: PALETTE[0] },
+      { kind: "kv", label: "phone", value: profile.phone, color: PALETTE[1] },
+      { kind: "kv", label: "linkedin", value: profile.linkedin, color: PALETTE[2] },
+      { kind: "kv", label: "github", value: profile.github, color: PALETTE[4] },
     ];
   }
 
@@ -86,14 +111,14 @@ function getResponse(raw: string): Line[] {
       link.download = "";
       link.click();
     }
-    return [{ type: "output", text: "downloading resume.pdf ..." }];
+    return [{ kind: "success", text: "✓ downloading resume.pdf ..." }];
   }
 
   if (cmd.startsWith("sudo")) {
-    return [{ type: "error", text: "permission denied: you're not root here." }];
+    return [{ kind: "error", text: "permission denied: you're not root here." }];
   }
 
-  return [{ type: "error", text: `command not found: ${raw}. type 'help' for a list of commands.` }];
+  return [{ kind: "error", text: `command not found: ${raw}. type 'help' for a list of commands.` }];
 }
 
 export default function Terminal() {
@@ -115,20 +140,20 @@ export default function Terminal() {
   }, [lines]);
 
   function runCommand(raw: string) {
-    const promptLine: Line = { type: "input", text: raw };
+    const inputLine: Line = { kind: "input", text: raw };
+    const cmd = raw.trim().toLowerCase();
 
-    if (raw.trim().toLowerCase() === "clear") {
+    if (cmd === "clear") {
       setLines([]);
       return;
     }
-    if (raw.trim().toLowerCase() === "exit") {
-      setLines((prev) => [...prev, promptLine, { type: "output", text: "closing session..." }]);
+    if (cmd === "exit") {
+      setLines((prev) => [...prev, inputLine, { kind: "success", text: "closing session..." }]);
       setTimeout(() => setOpen(false), 400);
       return;
     }
 
-    const response = getResponse(raw);
-    setLines((prev) => [...prev, promptLine, ...response]);
+    setLines((prev) => [...prev, inputLine, ...getResponse(raw)]);
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
@@ -159,71 +184,111 @@ export default function Terminal() {
     }
   }
 
+  function renderLine(line: Line, i: number) {
+    if (line.kind === "input") {
+      return (
+        <div key={i} className="terminal-line font-mono text-xs leading-relaxed">
+          <span style={{ color: "#4FD1C5" }}>❯ </span>
+          <span className="text-ink">{line.text}</span>
+        </div>
+      );
+    }
+    if (line.kind === "heading") {
+      return (
+        <div
+          key={i}
+          className="terminal-line font-mono text-xs font-semibold leading-relaxed mt-2 first:mt-0"
+          style={{ color: line.color }}
+        >
+          ▸ {line.text}
+        </div>
+      );
+    }
+    if (line.kind === "kv") {
+      return (
+        <div key={i} className="terminal-line font-mono text-xs leading-relaxed pl-3">
+          <span style={{ color: line.color }}>{line.label}</span>
+          <span className="text-muted">: </span>
+          <span className="text-ink">{line.value}</span>
+        </div>
+      );
+    }
+    if (line.kind === "chips") {
+      return (
+        <div key={i} className="terminal-line flex flex-wrap gap-1.5 pl-3 py-1">
+          {line.items?.map((item) => (
+            <span
+              key={item}
+              className="term-chip font-mono text-[0.68rem]"
+              style={{
+                color: line.color,
+                borderColor: `${line.color}55`,
+                background: `${line.color}14`,
+              }}
+            >
+              {item}
+            </span>
+          ))}
+        </div>
+      );
+    }
+    if (line.kind === "success") {
+      return (
+        <div key={i} className="terminal-line font-mono text-xs leading-relaxed" style={{ color: "#34D399" }}>
+          {line.text}
+        </div>
+      );
+    }
+    if (line.kind === "error") {
+      return (
+        <div key={i} className="terminal-line font-mono text-xs leading-relaxed" style={{ color: "#FB7185" }}>
+          ✕ {line.text}
+        </div>
+      );
+    }
+    return (
+      <div key={i} className="terminal-line font-mono text-xs leading-relaxed text-muted pl-3">
+        {line.text}
+      </div>
+    );
+  }
+
   return (
     <>
       <button
         onClick={() => setOpen(true)}
         aria-label="Open terminal"
         title="Open terminal"
-        className={`terminal-fab fixed bottom-6 left-6 z-40 w-11 h-11 flex items-center justify-center rounded-full bg-surface border border-border transition-all duration-300 ${
+        className={`terminal-fab fixed bottom-6 left-6 z-40 w-12 h-12 flex items-center justify-center rounded-full transition-all duration-300 ${
           open ? "opacity-0 pointer-events-none scale-90" : "opacity-100"
         }`}
       >
-        <TerminalSquare size={17} className="text-signal" strokeWidth={2} />
+        <TerminalSquare size={18} className="text-void" strokeWidth={2.3} />
       </button>
 
       {open && (
-        <div className="terminal-window fixed bottom-6 left-6 z-40 w-[92vw] max-w-[440px]">
+        <div className="terminal-window fixed bottom-6 left-6 z-40 w-[92vw] max-w-[460px]">
           <div className="terminal-panel card overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-elevated/60">
-              <div className="flex items-center gap-2 font-mono text-xs text-muted">
-                <TerminalSquare size={13} className="text-signal" />
-                {profile.name.toLowerCase().replace(" ", "-")}@portfolio
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setOpen(false)}
-                  aria-label="Minimize"
-                  className="text-muted hover:text-ink transition-colors"
-                >
-                  <Minus size={14} />
-                </button>
-                <button
-                  onClick={() => setOpen(false)}
-                  aria-label="Close terminal"
-                  className="text-muted hover:text-pulse transition-colors"
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            </div>
-
-            <div ref={bodyRef} className="terminal-body font-mono text-xs px-4 py-3 h-64 overflow-y-auto">
-              {lines.map((line, i) => (
-                <div
-                  key={i}
-                  className={`terminal-line whitespace-pre-wrap leading-relaxed ${
-                    line.type === "input"
-                      ? "text-ink"
-                      : line.type === "error"
-                      ? "text-pulse"
-                      : "text-muted"
-                  }`}
-                >
-                  {line.type === "input" ? (
-                    <span>
-                      <span className="text-signal">$ </span>
-                      {line.text}
-                    </span>
-                  ) : (
-                    line.text
-                  )}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-elevated/60">
+            <div className="flex items-center gap-3">
+                <TerminalSquare size={13} style={{ color: "#4FD1C5" }} />
+                <span className="font-mono text-xs text-muted">
+                    {profile.name.toLowerCase().replace(" ", "-")}@portfolio
+                </span>
                 </div>
-              ))}
+                <button onClick={() => setOpen(false)} aria-label="Close terminal" className="text-muted hover:text-pulse transition-colors">
+                <X size={15} />
+                </button>
             </div>
 
-            <div className="flex items-center gap-2 px-4 py-2.5 border-t border-border">
-              <span className="font-mono text-xs text-signal">$</span>
+            <div ref={bodyRef} className="terminal-body px-4 py-3 h-72 overflow-y-auto">
+              {lines.map((line, i) => renderLine(line, i))}
+            </div>
+
+            <div className="flex items-center gap-2 px-4 py-3 border-t border-border">
+              <span className="font-mono text-xs" style={{ color: "#4FD1C5" }}>
+                ❯
+              </span>
               <input
                 ref={inputRef}
                 value={input}
