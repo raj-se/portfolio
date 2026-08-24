@@ -12,6 +12,7 @@ import CursorGlow from "@/components/CursorGlow";
 import Marquee from "@/components/Marquee";
 import BackToTop from "@/components/BackToTop";
 import Terminal from "@/components/Terminal";
+import CommandPalette from "@/components/CommandPalette";
 
 export default function Home() {
   return (
@@ -21,6 +22,7 @@ export default function Home() {
       <CursorGlow />
       <BackToTop />
       <Terminal />
+      <CommandPalette />
       <Header />
       <Hero />
       <Marquee />
