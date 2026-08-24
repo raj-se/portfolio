@@ -11,6 +11,7 @@ import ScrollProgress from "@/components/ScrollProgress";
 import CursorGlow from "@/components/CursorGlow";
 import Marquee from "@/components/Marquee";
 import BackToTop from "@/components/BackToTop";
+import Terminal from "@/components/Terminal";
 
 export default function Home() {
   return (
@@ -19,6 +20,7 @@ export default function Home() {
       <ScrollProgress />
       <CursorGlow />
       <BackToTop />
+      <Terminal />
       <Header />
       <Hero />
       <Marquee />
