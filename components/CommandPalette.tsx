@@ -2,34 +2,75 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, CornerDownLeft, ArrowUp, ArrowDown, Check } from "lucide-react";
-import { commands, Command } from "@/lib/commands";
+import { commands, Command, getRecentIds, pushRecentId } from "@/lib/commands";
+import { fuzzyMatch } from "@/lib/fuzzy";
+
+function HighlightedLabel({ label, indices }: { label: string; indices: number[] }) {
+  if (indices.length === 0) return <>{label}</>;
+  const indexSet = new Set(indices);
+  return (
+    <>
+      {label.split("").map((char, i) =>
+        indexSet.has(i) ? (
+          <span key={i} className="text-signal font-semibold">
+            {char}
+          </span>
+        ) : (
+          <span key={i}>{char}</span>
+        )
+      )}
+    </>
+  );
+}
 
 export default function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [recentIds, setRecentIds] = useState<string[]>([]);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const listRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const [highlightStyle, setHighlightStyle] = useState({ top: 0, height: 0, opacity: 0 });
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return commands;
-    return commands.filter((c) => {
-      const haystack = `${c.label} ${c.subtitle ?? ""} ${c.keywords.join(" ")}`.toLowerCase();
-      return haystack.includes(q);
-    });
+  const scored = useMemo(() => {
+    const q = query.trim();
+    if (!q) return commands.map((c) => ({ command: c, indices: [] as number[] }));
+
+    return commands
+      .map((c) => {
+        const onLabel = fuzzyMatch(q, c.label);
+        if (onLabel) return { command: c, indices: onLabel.indices, score: onLabel.score + 5 };
+        const haystack = `${c.subtitle ?? ""} ${c.keywords.join(" ")}`;
+        const onRest = fuzzyMatch(q, haystack);
+        if (onRest) return { command: c, indices: [] as number[], score: onRest.score };
+        return null;
+      })
+      .filter((x): x is { command: Command; indices: number[]; score: number } => x !== null)
+      .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
   }, [query]);
+
+  const filtered = scored.map((s) => s.command);
+
+  const recentCommands = useMemo(
+    () => (query ? [] : recentIds.map((id) => commands.find((c) => c.id === id)).filter((c): c is Command => !!c)),
+    [recentIds, query]
+  );
 
   const groups = useMemo(() => {
     const order: Command["group"][] = ["Navigate", "Actions", "Connect"];
-    return order
+    const base = order
       .map((g) => ({ group: g, items: filtered.filter((c) => c.group === g) }))
       .filter((g) => g.items.length > 0);
-  }, [filtered]);
+    if (recentCommands.length > 0) {
+      return [{ group: "Recent" as const, items: recentCommands }, ...base];
+    }
+    return base;
+  }, [filtered, recentCommands]);
+
+  const flatList = useMemo(() => groups.flatMap((g) => g.items), [groups]);
+  const activeCommand = flatList[selected] ?? null;
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -40,12 +81,10 @@ export default function CommandPalette() {
       if (e.key === "Escape") setOpen(false);
     }
     window.addEventListener("keydown", onKeyDown);
-
     function onExternalOpen() {
       setOpen(true);
     }
     window.addEventListener("open-command-palette", onExternalOpen);
-
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("open-command-palette", onExternalOpen);
@@ -56,6 +95,7 @@ export default function CommandPalette() {
     if (open) {
       setQuery("");
       setSelected(0);
+      setRecentIds(getRecentIds());
       document.body.style.overflow = "hidden";
       setTimeout(() => inputRef.current?.focus(), 50);
     } else {
@@ -63,21 +103,19 @@ export default function CommandPalette() {
     }
   }, [open]);
 
-  useEffect(() => {
-    setSelected(0);
-  }, [query]);
+  useEffect(() => setSelected(0), [query]);
 
   useEffect(() => {
-    const current = filtered[selected];
-    if (!current) return;
-    const el = itemRefs.current[current.id];
-    if (el && listRef.current) {
+    if (!activeCommand) return;
+    const el = itemRefs.current[activeCommand.id];
+    if (el) {
       setHighlightStyle({ top: el.offsetTop, height: el.offsetHeight, opacity: 1 });
       el.scrollIntoView({ block: "nearest" });
     }
-  }, [selected, filtered]);
+  }, [selected, activeCommand]);
 
   function runCommand(cmd: Command) {
+    pushRecentId(cmd.id);
     switch (cmd.action.type) {
       case "scroll":
         document.querySelector(cmd.action.target)?.scrollIntoView({ behavior: "smooth" });
@@ -113,14 +151,13 @@ export default function CommandPalette() {
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setSelected((s) => Math.min(s + 1, filtered.length - 1));
+      setSelected((s) => Math.min(s + 1, flatList.length - 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setSelected((s) => Math.max(s - 1, 0));
     } else if (e.key === "Enter") {
       e.preventDefault();
-      const cmd = filtered[selected];
-      if (cmd) runCommand(cmd);
+      if (activeCommand) runCommand(activeCommand);
     }
   }
 
@@ -144,50 +181,83 @@ export default function CommandPalette() {
           <kbd className="cmdk-kbd">esc</kbd>
         </div>
 
-        <div ref={listRef} className="cmdk-list relative max-h-[360px] overflow-y-auto py-2">
-          <div className="cmdk-highlight" style={highlightStyle} />
+        <div className="cmdk-split">
+          <div className="cmdk-list relative max-h-[380px] overflow-y-auto py-2">
+            <div className="cmdk-highlight" style={highlightStyle} />
 
-          {groups.length === 0 && (
-            <p className="px-4 py-8 text-center text-sm text-muted font-mono">No matching commands.</p>
-          )}
+            {flatList.length === 0 && (
+              <p className="px-4 py-8 text-center text-sm text-muted font-mono">No matching commands.</p>
+            )}
 
-          {groups.map(({ group, items }) => (
-            <div key={group} className="mb-1 last:mb-0">
-              <p className="px-4 pt-2 pb-1 font-mono text-[0.65rem] tracking-widest text-muted uppercase">
-                {group}
-              </p>
-              {items.map((cmd) => {
-                const globalIndex = filtered.indexOf(cmd);
-                const Icon = cmd.icon;
-                const isCopied = copiedId === cmd.id;
-                return (
-                  <button
-                    key={cmd.id}
-                    ref={(el) => { itemRefs.current[cmd.id] = el; }}
-                    onClick={() => runCommand(cmd)}
-                    onMouseEnter={() => setSelected(globalIndex)}
-                    className="cmdk-item relative z-10 flex items-center gap-3 w-full px-4 py-2.5 text-left"
-                  >
-                    <Icon size={15} className="text-signal shrink-0" strokeWidth={2} />
-                    <span className="flex-1 min-w-0">
-                      <span className="block text-sm text-ink truncate">{cmd.label}</span>
-                      {cmd.subtitle && (
-                        <span className="block text-xs text-muted font-mono truncate">{cmd.subtitle}</span>
-                      )}
-                    </span>
-                    {isCopied && (
-                      <span className="flex items-center gap-1 text-xs font-mono text-signal shrink-0">
-                        <Check size={12} /> copied
+            {groups.map(({ group, items }) => (
+              <div key={group} className="mb-1 last:mb-0">
+                <p className="px-4 pt-2 pb-1 font-mono text-[0.65rem] tracking-widest text-muted uppercase">
+                  {group}
+                </p>
+                {items.map((cmd) => {
+                  const scoredItem = scored.find((s) => s.command.id === cmd.id);
+                  const indices = scoredItem?.indices ?? [];
+                  const globalIndex = flatList.indexOf(cmd);
+                  const Icon = cmd.icon;
+                  const isCopied = copiedId === cmd.id;
+                  return (
+                    <button
+                      key={`${group}-${cmd.id}`}
+                      ref={(el) => { itemRefs.current[cmd.id] = el; }}
+                      onClick={() => runCommand(cmd)}
+                      onMouseEnter={() => setSelected(globalIndex)}
+                      className="cmdk-item relative z-10 flex items-center gap-3 w-full px-4 py-2.5 text-left"
+                    >
+                      <Icon size={15} className="text-signal shrink-0" strokeWidth={2} />
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-sm text-ink truncate">
+                          <HighlightedLabel label={cmd.label} indices={indices} />
+                        </span>
                       </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          ))}
+                      {cmd.shortcut && (
+                        <span className="hidden sm:flex items-center gap-1 shrink-0">
+                          {cmd.shortcut.map((k) => (
+                            <kbd key={k} className="cmdk-kbd">{k}</kbd>
+                          ))}
+                        </span>
+                      )}
+                      {isCopied && (
+                        <span className="flex items-center gap-1 text-xs font-mono text-signal shrink-0">
+                          <Check size={12} /> copied
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+
+          <div className="cmdk-preview hidden md:flex flex-col px-5 py-5">
+            {activeCommand ? (
+              <>
+                <div className="w-9 h-9 rounded-lg bg-elevated border border-border flex items-center justify-center mb-4">
+                  <activeCommand.icon size={17} className="text-signal" strokeWidth={2} />
+                </div>
+                <p className="font-mono text-sm text-ink mb-1">{activeCommand.label}</p>
+                {activeCommand.subtitle && (
+                  <p className="font-mono text-xs text-muted mb-4">{activeCommand.subtitle}</p>
+                )}
+                <div className="flex flex-col gap-2 mt-2">
+                  {activeCommand.previewLines?.map((line, i) => (
+                    <p key={i} className="text-xs text-muted leading-relaxed border-l border-border pl-3">
+                      {line}
+                    </p>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="text-xs text-muted font-mono">No selection</p>
+            )}
+          </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-4 px-4 py-2.5 border-t border-border">
+        <div className="flex items-center gap-4 px-4 py-2.5 border-t border-border">
           <span className="flex items-center gap-1.5 font-mono text-[0.68rem] text-muted">
             <kbd className="cmdk-kbd"><ArrowUp size={10} /></kbd>
             <kbd className="cmdk-kbd"><ArrowDown size={10} /></kbd>
@@ -196,6 +266,9 @@ export default function CommandPalette() {
           <span className="flex items-center gap-1.5 font-mono text-[0.68rem] text-muted">
             <kbd className="cmdk-kbd"><CornerDownLeft size={10} /></kbd>
             select
+          </span>
+          <span className="hidden sm:flex items-center gap-1.5 font-mono text-[0.68rem] text-muted ml-auto">
+            try <kbd className="cmdk-kbd">g</kbd> <kbd className="cmdk-kbd">p</kbd> from anywhere
           </span>
         </div>
       </div>
