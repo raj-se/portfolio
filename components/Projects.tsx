@@ -58,8 +58,24 @@ export default function Projects() {
                   <TiltCard className="h-full">
                     <article className="card project-card p-6 h-full flex flex-col">
                       <p className="font-mono text-xs text-muted mb-3 line-clamp-1">{project.tag}</p>
-                      <h3 className="section-heading text-xl text-ink mb-3 line-clamp-1">{project.name}</h3>
+                      <div className="flex flex-wrap items-center gap-3 mb-3">
+                        <h3 className="section-heading text-xl text-ink line-clamp-1">
+                          {project.name}
+                        </h3>
 
+                        {project.url && (
+                          <a
+                            href={project.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-mono text-[0.68rem] text-signal border border-signal/30 bg-signal/5 hover:bg-signal/10 hover:border-signal/60 transition-all duration-200 whitespace-nowrap"
+                            aria-label={`View ${project.name} live project`}
+                          >
+                            View live project <span>↗</span>
+                          </a>
+                        )}
+                      </div>
                       <p className="text-muted text-sm leading-relaxed line-clamp-3">{project.description}</p>
                       {isLong && (
                         <button
