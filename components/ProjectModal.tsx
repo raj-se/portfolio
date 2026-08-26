@@ -68,6 +68,20 @@ export default function ProjectModal({
           {project.description}
         </p>
 
+        {project.url && (
+          <a
+            href={project.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full font-mono text-xs text-signal border border-signal/40 bg-signal/5 hover:bg-signal/10 hover:border-signal transition-all duration-200 mb-7"
+            aria-label={`View ${project.name} live project`}
+          >
+            <span>View live project</span>
+            <span>↗</span>
+          </a>
+        )}
+
+
         <div className="flex flex-col gap-1.5 mb-7">
           {project.metrics.map((metric, i) => (
             <div
