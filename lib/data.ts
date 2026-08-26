@@ -110,56 +110,133 @@ export type Project = {
   description: string;
   metrics: string[];
   stack: string[];
+  url?: string;
 };
 
 export const projects: Project[] = [
   {
-    name: "AvaLXP",
-    tag: "Production · E-Careers",
+    name: "CodeLens",
+    tag: "AI · Developer Platform",
     description:
-      "A modular, multi-tenant learning platform rebuilt from a legacy PHP monolith into 19+ independent microservices — learner, coach, admin, course, session, and notification domains, wired together with an event bus. A modular, multi-tenant learning platform rebuilt from a legacy PHP monolith into 19+ independent microservices — learner, coach, admin, course, session, and notification domains, wired together with an event bus. A modular, multi-tenant learning platform rebuilt from a legacy PHP monolith into 19+ independent microservices — learner, coach, admin, course, session, and notification domains, wired together with an event bus. A modular, multi-tenant learning platform rebuilt from a legacy PHP monolith into 19+ independent microservices — learner, coach, admin, course, session, and notification domains, wired together with an event bus. A modular, multi-tenant learning platform rebuilt from a legacy PHP monolith into 19+ independent microservices — learner, coach, admin, course, session, and notification domains, wired together with an event bus. ",
-    metrics: ["19+ microservices", "30% faster API responses", "25% higher throughput"],
-    stack: ["Node.js", "Fastify", "PostgreSQL", "MongoDB", "AWS Lambda", "EventBridge", "Next.js"],
+      "An AI-powered code review platform that connects to GitHub repositories, analyzes pull requests for bugs, security issues, performance problems, missing tests, and breaking changes, then generates actionable reviews with code-level suggestions and confidence scores.",
+    metrics: [
+      "Automated PR analysis",
+      "Repository-aware AI reviews",
+      "GitHub webhook driven",
+    ],
+    stack: [
+      "Next.js",
+      "TypeScript",
+      "Fastify",
+      "PostgreSQL",
+      "Redis",
+      "GitHub API",
+      "LLM API",
+      "Docker",
+    ],
   },
   {
-    name: "Billing & E-Commerce Platform",
-    tag: "Internal · Catalyst Crew",
+    name: "ScanScore",
+    tag: "AI · Career Platform",
     description:
-      "An internal platform covering invoicing, supplier management, product catalog, and order processing, plus an analytics dashboard for revenue and top-customer reporting.",
-    metrics: ["25% fewer redundant DB calls", "RBAC across multiple roles"],
-    stack: ["Node.js", "TypeScript", "PostgreSQL", "Docker", "JWT"],
+      "An AI-powered ATS resume analyzer that compares resumes against job descriptions, generates compatibility scores, identifies keyword gaps and formatting risks, and provides actionable suggestions. It also surfaces live job openings ranked by resume fit.",
+    metrics: [
+      "AI-powered ATS scoring",
+      "Resume & JD keyword analysis",
+      "Live jobs ranked by fit",
+    ],
+    stack: [
+      "Next.js",
+      "TypeScript",
+      "Tailwind CSS",
+      "Framer Motion",
+      "Gemini API",
+      "Adzuna API",
+      "Zod",
+      "PDF/DOCX Parsing",
+    ],
+    url: "https://scan-score.vercel.app",
+  },  
+  {
+    name: "LedgerX",
+    tag: "FinTech · Distributed Systems",
+    description:
+      "A financial ledger and wallet platform built around double-entry accounting, immutable transactions, idempotent payment processing, transfers, refunds, reconciliation, and webhook handling. Designed to preserve financial consistency under retries and concurrent transactions.",
+    metrics: [
+      "Double-entry accounting",
+      "Idempotent transaction processing",
+      "Immutable financial records",
+    ],
+    stack: [
+      "TypeScript",
+      "Fastify",
+      "PostgreSQL",
+      "Redis",
+      "AWS EventBridge",
+      "Docker",
+    ],
   },
   {
-    name: "Communication Log Service",
-    tag: "AvaLXP notification domain",
+    name: "Pulse",
+    tag: "Infrastructure · Observability",
     description:
-      "A paginated communication log across email, SMS, and WhatsApp channels, replacing a slow aggregation query with parallel targeted lookups backed by a compound index.",
-    metrics: ["Removed query timeouts", "Per-channel pagination"],
-    stack: ["Fastify", "MongoDB"],
+      "A lightweight observability platform for monitoring distributed Node.js services through request metrics, latency percentiles, error rates, throughput, service health, and distributed traces, with configurable alerts for abnormal service behavior.",
+    metrics: [
+      "P50/P95/P99 latency tracking",
+      "Distributed request tracing",
+      "Real-time service health",
+    ],
+    stack: [
+      "Node.js",
+      "TypeScript",
+      "Fastify",
+      "PostgreSQL",
+      "Redis",
+      "WebSockets",
+      "Docker",
+      "AWS",
+    ],
   },
   {
-    name: "Badge & Gamification Engine",
-    tag: "AvaLXP badge domain",
+    name: "AskBase",
+    tag: "AI · Enterprise Knowledge",
     description:
-      "A tiered badge and achievement system with transactional badge assignment/removal, cross-table existence checks, and Zod-validated tier configuration for cohort and programme-level rewards.",
-    metrics: ["Zero orphaned badge records", "Shared across 3 domains"],
-    stack: ["Fastify", "PostgreSQL", "Zod"],
+      "A permission-aware AI knowledge platform that turns company documents into a searchable knowledge base. Documents are parsed, chunked, embedded, and retrieved to generate grounded answers with source citations while respecting organization and document-level access controls.",
+    metrics: [
+      "RAG with source citations",
+      "Document-level permissions",
+      "Automated document ingestion",
+    ],
+    stack: [
+      "Next.js",
+      "TypeScript",
+      "Node.js",
+      "PostgreSQL",
+      "Redis",
+      "Vector Database",
+      "LLM API",
+      "Docker",
+    ],
   },
   {
-    name: "Student Journey Tracker",
-    tag: "AvaLXP learner domain",
+    name: "Shipyard",
+    tag: "Developer Platform · API Infrastructure",
     description:
-      "Tracks a learner's progress through cohorts and programmes, enriching journey data with add-on status and LMS titles in parallel, backed by conditional JSONB metadata merges.",
-    metrics: ["Parallelized enrichment lookups", "Type-safe status narrowing"],
-    stack: ["Node.js", "PostgreSQL", "TypeScript"],
-  },
-  {
-    name: "Session & Calendar Sync",
-    tag: "AvaLXP session domain",
-    description:
-      "Schedules and syncs live coaching sessions across Zoom and Microsoft Graph, keeping calendar invites, reminders, and communication logs consistent across external providers.",
-    metrics: ["Two external providers synced", "Automated reminder emails"],
-    stack: ["Node.js", "Zoom API", "Microsoft Graph API", "SendGrid"],
+      "A developer platform for managing production APIs with API keys, environments, authentication, rate limiting, request logging, usage analytics, webhooks, API versioning, and configurable access controls through a centralized gateway.",
+    metrics: [
+      "API key & environment isolation",
+      "Configurable rate limiting",
+      "Real-time API usage analytics",
+    ],
+    stack: [
+      "Next.js",
+      "TypeScript",
+      "Fastify",
+      "PostgreSQL",
+      "Redis",
+      "Docker",
+      "AWS",
+    ],
   },
 ];
 
