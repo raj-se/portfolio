@@ -115,26 +115,27 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    name: "CodeLens",
-    tag: "AI · Developer Platform",
-    description:
-      "An AI-powered code review platform that connects to GitHub repositories, analyzes pull requests for bugs, security issues, performance problems, missing tests, and breaking changes, then generates actionable reviews with code-level suggestions and confidence scores.",
-    metrics: [
-      "Automated PR analysis",
-      "Repository-aware AI reviews",
-      "GitHub webhook driven",
-    ],
-    stack: [
-      "Next.js",
-      "TypeScript",
-      "Fastify",
-      "PostgreSQL",
-      "Redis",
-      "GitHub API",
-      "LLM API",
-      "Docker",
-    ],
-  },
+  name: "Rollcall",
+  tag: "EdTech · Attendance Platform",
+  description:
+    "A QR-based attendance system for physical classes. Instructors project a rotating QR code; students scan it and pick their name from the roster, and attendance is only marked if they're inside the room's geofence and inside the session's time window.",
+  metrics: [
+    "Rotating QR codes (anti-screenshot)",
+    "Geofenced, time-windowed check-ins",
+    "Live attendance dashboard + CSV export",
+  ],
+  stack: [
+    "Next.js",
+    "TypeScript",
+    "Tailwind CSS",
+    "PostgreSQL (Neon)",
+    "Zod",
+    "JWT (jose)",
+    "SendGrid",
+    "QR Code Generation",
+  ],
+  url: "https://attendigo.vercel.app",
+},
   {
     name: "ScanScore",
     tag: "AI · Career Platform",
