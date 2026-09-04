@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { profile } from "@/lib/data";
+import Image from "next/image";
 
 const links = [
   { href: "#about", label: "about" },
@@ -47,9 +48,15 @@ export default function Header() {
       }`}
     >
       <div className="max-w-content mx-auto px-6 md:px-8 h-16 flex items-center justify-between">
-        <a href="#top" className="font-mono text-sm text-ink flex items-center gap-2 shrink-0">
-          <span className="w-2 h-2 rounded-full bg-signal shadow-[0_0_10px_rgba(79,209,197,0.8)]" />
-          RS<span className="text-signal"></span>
+        <a href="#top" className="flex items-center gap-2 shrink-0">
+          <Image
+            src="/logo.svg"
+            alt="Logo"
+            width={32}
+            height={32}
+            className="w-8 h-8"
+          />
+          <span className="font-mono text-sm text-ink">RS</span>
         </a>
 
         <nav className="hidden md:flex items-center gap-8 font-mono text-sm">
