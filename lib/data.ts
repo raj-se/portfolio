@@ -159,45 +159,24 @@ export const projects: Project[] = [
     url: "https://scan-score.vercel.app",
   },  
   {
-    name: "LedgerX",
-    tag: "FinTech · Distributed Systems",
-    description:
-      "A financial ledger and wallet platform built around double-entry accounting, immutable transactions, idempotent payment processing, transfers, refunds, reconciliation, and webhook handling. Designed to preserve financial consistency under retries and concurrent transactions.",
-    metrics: [
-      "Double-entry accounting",
-      "Idempotent transaction processing",
-      "Immutable financial records",
-    ],
-    stack: [
-      "TypeScript",
-      "Fastify",
-      "PostgreSQL",
-      "Redis",
-      "AWS EventBridge",
-      "Docker",
-    ],
-  },
-  {
-    name: "Pulse",
-    tag: "Infrastructure · Observability",
-    description:
-      "A lightweight observability platform for monitoring distributed Node.js services through request metrics, latency percentiles, error rates, throughput, service health, and distributed traces, with configurable alerts for abnormal service behavior.",
-    metrics: [
-      "P50/P95/P99 latency tracking",
-      "Distributed request tracing",
-      "Real-time service health",
-    ],
-    stack: [
-      "Node.js",
-      "TypeScript",
-      "Fastify",
-      "PostgreSQL",
-      "Redis",
-      "WebSockets",
-      "Docker",
-      "AWS",
-    ],
-  },
+  name: "PulseCheck",
+  tag: "DevOps · Monitoring · Reliability",
+  description:
+    "A modern uptime and API monitoring platform that tracks endpoint health, response times, status codes, and availability in real time. Built to help teams detect outages early, monitor service reliability, manage authentication-protected endpoints, and receive actionable alerts before users are impacted.",
+  metrics: [
+    "Real-time uptime monitoring",
+    "Response time & status code tracking",
+    "Authentication-aware health checks",
+  ],
+  stack: [
+    "Next.js",
+    "TypeScript",
+    "PostgreSQL",
+    "Prisma",
+    "Tailwind CSS",
+    "Docker",
+  ],
+},
   {
     name: "AskBase",
     tag: "AI · Enterprise Knowledge",
