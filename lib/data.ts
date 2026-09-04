@@ -176,6 +176,7 @@ export const projects: Project[] = [
     "Tailwind CSS",
     "Docker",
   ],
+  url: "https://pulsecheck-raj.vercel.app",
 },
   {
     name: "AskBase",
